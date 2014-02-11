@@ -40,23 +40,24 @@ def imagetogcode(image, f):
         return chunks
     
     for row in reversed(pixels):
+        first = True        
         if not forward:
-            f.write("G8 ")
             result_row = row[::-1]
         else:
             result_row = row
-            f.write ( "G7 ");
-        forward = not forward
-        first = True
-        
         for chunk in get_chunks(result_row):
-            if not first:
-                f.write("G9 ")
-            else:
+            if first:
+                if forward:
+                    f.write("G7 N1 ")
+                else:
+                    f.write("G7 N0 ")
                 first = not first
+            else:
+                f.write ("G7")
             b64 = base64.b64encode("".join(chr(x) for x in chunk))
             f.write("L"+str(len(b64))+" ")
             f.write("D"+b64+ "\n")
+        forward = not forward
             
 
 def main(argv):
